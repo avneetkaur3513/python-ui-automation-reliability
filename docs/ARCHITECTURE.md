@@ -1,27 +1,31 @@
 # Architecture
 
-This is a Python-driven browser regression testing project. The application under test is a small local ticket desk, so test conditions can be reproduced without relying on a third-party website.
+The system has four small parts:
 
-## Components
+1. **Ticket-desk web app:** HTML and JavaScript for searching, creating and updating tickets. English/French UI, local date/currency formatting and controlled test-only defects are included.
+2. **Local HTTP server:** `test_support/server.py` starts the app on a free loopback port. It is shared between Pytest and the timing experiment.
+3. **Playwright + Pytest:** fresh browser contexts, visible assertions and test isolation. When a test fails or detects a seeded defect, the fixture saves a screenshot and Playwright trace.
+4. **GitHub Actions:** runs the tests, performs the timing comparison and publishes the HTML report plus artifacts.
 
-- `sample_app/`: a local browser application with ordinary user workflows and a language switcher. Its behaviour should be deterministic unless a test explicitly introduces a fault.
-- `tests/conftest.py`: starts an HTTP server and provides a clean Playwright browser context for each test.
-- `tests/`: Pytest scenarios with observable assertions. Tests should not rely on fixed sleeps or order-dependent state.
-- `docs/`: decisions, test cases and investigation evidence.
-- GitHub Actions (future stage): runs the tests and retains relevant failure artifacts.
+## Why the app is local
 
-## Test flow
+Testing somebody else's site makes state, language support and timing difficult to control. The local ticket desk provides repeatable conditions so the tests can investigate specific behaviours.
 
-1. Start the local application on an available loopback port.
-2. Launch a Chromium browser using Playwright.
-3. Execute an isolated user journey with Pytest.
-4. Assert on visible content and behaviour, not merely on successful clicks.
-5. When a test fails, investigate the browser trace, page state and timing rather than hiding the issue with retries.
+## Reliability investigation
 
-## Next engineering problems
+The optional `searchDelay` URL parameter controls asynchronous search updates. The experiment alternates between short and long updates to compare:
 
-1. **Reliability:** reproduce a genuinely intermittent UI timing problem, identify the cause, then measure repeat runs before and after a fix.
-2. **Localization:** validate translated interface labels, regional formatting and layout under at least two locales.
-3. **Failure diagnosis:** capture useful artifacts and summarize failures without depending on an LLM.
+- a weak test using a fixed 100 ms delay
+- a test waiting for the UI to show the expected result
 
-Avoid inventing performance numbers; report actual counts and conditions when these experiments exist.
+Normal tests use Playwright's condition-based assertions, not fixed sleeps. The fixed wait exists only in the demonstration script.
+
+## Localization checks
+
+The app uses `Intl.DateTimeFormat` and `Intl.NumberFormat` for `en-IE` and `fr-FR`. Tests verify visible translations, the expected number/date formats, and layout at narrow viewport widths.
+
+Test-only fault switches allow reproducible negative controls without permanently breaking the normal application.
+
+## Limits
+
+This is browser automation, not native app testing. The timed conditions and injected translation errors are reproducible simulations. See `README.md` for evidence links and `DEVELOPMENT_LOG.md` for the measured outcomes.
