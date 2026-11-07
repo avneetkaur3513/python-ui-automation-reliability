@@ -44,7 +44,10 @@ def page(browser, request):
         yield page
     finally:
         result = getattr(request.node, "report_call", None)
-        failed = result is not None and result.failed
+        # Expected failures from controlled defect injection also retain evidence.
+        failed = result is not None and (
+            result.failed or bool(getattr(result, "wasxfail", False))
+        )
         if failed:
             name = re.sub(r"[^a-zA-Z0-9_-]+", "_", request.node.nodeid)[:130]
             directory = Path(os.environ.get("UI_TEST_ARTIFACT_DIR", "artifacts/failures"))
