@@ -118,3 +118,9 @@ A separate regression test revealed that the ticket form accepted fields contain
 [Passing CI after the changes](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42374057583): **29 local tests passed**, plus **8 external tests in Chromium** and **8 in Firefox**. These are 45 test executions, not 45 different scenarios.
 
 The latest negative-control tests assert specific defective values and check that the same scenarios work without fault injection. They no longer rely on broad expected failures.
+
+## Keyboard accessibility check
+
+The ticket list re-render originally dropped keyboard focus after Resolve/Reopen. Two tests reproduced it in [the failing CI run](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42374596784). The updated handler restores focus to the replacement button, or to the status filter if the ticket becomes hidden.
+
+[Passing CI after the fix](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42374826958): **32 local tests**, plus **8 independent-app tests in Chromium** and **8 in Firefox**. See [debugging notes](docs/DEBUGGING_WALKTHROUGH.md) for test commands, reproducible failures and the trade-offs behind the fixes.

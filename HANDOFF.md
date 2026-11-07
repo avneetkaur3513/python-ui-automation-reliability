@@ -34,3 +34,9 @@ External tests require network access: `python -m pytest -q -m external`. Instal
 ## Next human review
 
 Check the latest GitHub Actions run, inspect `README.md`, and be able to explain the failure-first investigation for whitespace validation, mobile overflow, and the fixed-wait experiment. These are controlled engineering exercises, not claims about production software or native Apple-platform testing.
+
+## Keyboard navigation follow-up
+
+The `keyboard-nav` branch adds three regression checks and a focus-restoration fix. Failing evidence: [42374596784](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42374596784). Passing evidence: [42374826958](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42374826958) — 32 local tests plus 8 Chromium and 8 Firefox external tests.
+
+See `docs/DEBUGGING_WALKTHROUGH.md` for a concise explanation of the investigated problems and demonstration commands. This branch remains separate from `main` until the pull request is merged.
