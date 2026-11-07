@@ -34,3 +34,11 @@ python -m scripts.reliability_experiment
 4. Merge into `main` only after the project is accepted as ready.
 
 Do not call seeded failures production bugs or timing experiments real-world reliability benchmarks.
+
+## Independent external application tests
+
+A separate `site-regression` branch includes `tests/test_external_todomvc.py` and a new GitHub Actions job for those tests.
+
+Run them with `python -m pytest -q -m external`. The default local suite runs with `-m "not external"`. The external tests use independent browser contexts and require network access.
+
+First external test run: [42373046982](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42373046982), **8 passed**. Chromium/Firefox matrix validation was subsequently added; check the latest workflow results before merging.

@@ -30,3 +30,19 @@ The `ui-tests` branch adds expected behaviours for:
 - User-entered text displayed literally, not interpreted as HTML
 
 These are deterministic regression tests. Flaky-test diagnosis and regional format validation are separate future investigations.
+
+## External regression tests
+
+The `external` marker distinguishes external-app tests from the controlled local app. The first target is the official Playwright TodoMVC demo, chosen because it supports reproducible CRUD, browser routing and persistence without registration.
+
+Scenarios:
+- Add multiple entries in expected order
+- Reject blank/whitespace input
+- Show the correct set under Active/Completed filters
+- Clear completed items without deleting active items
+- Save an edited entry without making a duplicate
+- Cancel an edit with Escape
+- Retain titles and completion state after reload
+- Delete a selected item while leaving unrelated items intact
+
+The external suite runs in separate CI jobs; both Chromium and Firefox are intended. A third-party outage is reported as a test failure rather than masked. This suite does not verify native iOS or macOS behaviour.

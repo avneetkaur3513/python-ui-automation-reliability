@@ -55,7 +55,7 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: python -m pip install -r requirements-dev.txt
-      - name: Install Chromium
+      - name: Install selected browser
         run: python -m playwright install --with-deps ${{ matrix.browser }}
       - name: Run independent application tests
         env:

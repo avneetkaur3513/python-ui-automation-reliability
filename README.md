@@ -80,3 +80,33 @@ For a failing test, the fixture writes screenshots and Playwright traces under `
 ## Limits
 
 The project tests a browser app with Chromium, not native iOS/macOS software. The timing delays and two localization defects are controlled examples. The evidence should be interpreted as results from those specific scenarios, not general performance guarantees.
+
+## Testing an independent application
+
+The `tests/test_external_todomvc.py` module runs against the publicly hosted [Playwright TodoMVC demo](https://demo.playwright.dev/todomvc/), which is maintained outside this repository. These tests do not use our local ticket-desk app.
+
+It covers task creation, whitespace handling, active/completed filters, clearing completed tasks, editing and cancelling edits, persistence after reload, and deleting one item without affecting another.
+
+Each test opens a fresh browser context; state stored in the demo's `localStorage` cannot leak between tests. The tests do not create accounts or modify shared server data.
+
+Run local tests only (offline-friendly):
+```bash
+python -m pytest -q -m "not external"
+```
+
+Run the external tests (internet required):
+```bash
+python -m pytest -q -m external
+```
+
+To test the external app in Firefox, install that browser and set the engine:
+```bash
+python -m playwright install firefox
+PLAYWRIGHT_BROWSER=firefox python -m pytest -q -m external
+```
+
+On Windows PowerShell, set `$env:PLAYWRIGHT_BROWSER="firefox"` before running the command.
+
+The CI pipeline keeps the local and external tests in separate jobs and executes the external tests in Chromium and Firefox. An external service outage or layout change can cause these external tests to fail even when our own local app is healthy. This is intentional visibility, not a reason to silently skip failed checks.
+
+The external application is a **public demonstration**, not a production e-commerce system. We use it to check whether the test framework works against an independently maintained UI; we do not claim to have found defects in a real customer's app.

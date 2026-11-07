@@ -51,3 +51,13 @@ The repository is not yet a complete automation/reliability portfolio project.
 - CI run [42371558410](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42371558410): **22 passed, 2 xfailed**. Timing comparison again: fixed 6/12; condition-based 12/12.
 
 The two xfails are deliberate negative controls, not unresolved failures in the normal app. Timing metrics are measured only under injected test delays.
+
+## 2026-11-07 — Independent site regression coverage
+
+- Added eight Playwright scenarios against the external Playwright TodoMVC demo.
+- Scenarios verify item ordering, whitespace validation, filtering, completion, editing, edit cancellation, reload persistence and targeted deletion.
+- Separated these tests from the local ticket-desk suite using a Pytest marker.
+- GitHub Actions run [42373046982](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42373046982): external job **8 passed**; local job **22 passed, 2 xfailed**.
+- Added a Chromium/Firefox matrix for external tests. Cross-browser results must be checked in a later CI run before claiming Firefox coverage has passed.
+
+The demo is a publicly available test application; these tests do not constitute production system validation.
