@@ -1,4 +1,6 @@
 import os
+import re
+from pathlib import Path
 
 import pytest
 from playwright.sync_api import sync_playwright
@@ -26,11 +28,35 @@ def browser():
             browser.close()
 
 
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    report = outcome.get_result()
+    setattr(item, f"report_{report.when}", report)
+
+
 @pytest.fixture
-def page(browser):
+def page(browser, request):
     context = browser.new_context()
+    context.tracing.start(screenshots=True, snapshots=True, sources=True)
     page = context.new_page()
     try:
         yield page
     finally:
+        result = getattr(request.node, "report_call", None)
+        failed = result is not None and result.failed
+        if failed:
+            name = re.sub(r"[^a-zA-Z0-9_-]+", "_", request.node.nodeid)[:130]
+            directory = Path(os.environ.get("UI_TEST_ARTIFACT_DIR", "artifacts/failures"))
+            directory.mkdir(parents=True, exist_ok=True)
+            try:
+                page.screenshot(path=str(directory / f"{name}.png"), full_page=True)
+            except Exception as error:
+                print(f"Could not capture screenshot for {name}: {error}")
+            try:
+                context.tracing.stop(path=str(directory / f"{name}.zip"))
+            except Exception as error:
+                print(f"Could not capture browser trace for {name}: {error}")
+        else:
+            context.tracing.stop()
         context.close()
