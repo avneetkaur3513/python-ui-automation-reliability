@@ -15,6 +15,7 @@
     .ticket { padding: 14px 0; border-bottom: 1px solid #e7ebf1; }
     .ticket strong { display: block; }
     .ticket span { font-size: 0.9rem; color: #4d5a71; }
+    .ticket button { display: block; margin-top: 8px; padding: 6px 10px; font-size: .9rem; }
     form { display: grid; gap: 10px; margin-top: 24px; border-top: 1px solid #e7ebf1; padding-top: 20px; }
     button { width: fit-content; background: #174d92; border-color: #174d92; color: white; cursor: pointer; }
   </style>
@@ -29,6 +30,10 @@
   <main>
     <div class="toolbar">
       <div><label id="search-label" for="search">Search tickets</label><input id="search" type="search" placeholder="Search by title"></div>
+      <div>
+        <label id="status-label" for="status-filter">Status</label>
+        <select id="status-filter"><option value="all">All tickets</option><option value="open">Open only</option><option value="resolved">Resolved only</option></select>
+      </div>
       <p id="ticket-count" aria-live="polite"></p>
     </div>
     <section id="tickets" aria-label="Tickets"></section>
@@ -43,13 +48,13 @@
   </main>
   <script>
     const messages = {
-      en: { heading: 'Ticket Desk', language: 'Language', search: 'Search tickets', placeholder: 'Search by title', count: n => `${n} tickets`, empty: 'No tickets found', form: 'New ticket', title: 'Title', details: 'Details', submit: 'Create ticket', open: 'Open' },
-      fr: { heading: 'Centre de tickets', language: 'Langue', search: 'Rechercher des tickets', placeholder: 'Rechercher par titre', count: n => `${n} tickets`, empty: 'Aucun ticket trouvé', form: 'Nouveau ticket', title: 'Titre', details: 'Détails', submit: 'Créer un ticket', open: 'Ouvert' }
+      en: { heading: 'Ticket Desk', language: 'Language', search: 'Search tickets', placeholder: 'Search by title', count: n => `${n} tickets`, empty: 'No tickets found', form: 'New ticket', title: 'Title', details: 'Details', submit: 'Create ticket', open: 'Open', resolved: 'Resolved', resolve: 'Resolve', reopen: 'Reopen', status: 'Status', all: 'All tickets', openOnly: 'Open only', resolvedOnly: 'Resolved only' },
+      fr: { heading: 'Centre de tickets', language: 'Langue', search: 'Rechercher des tickets', placeholder: 'Rechercher par titre', count: n => `${n} tickets`, empty: 'Aucun ticket trouvé', form: 'Nouveau ticket', title: 'Titre', details: 'Détails', submit: 'Créer un ticket', open: 'Ouvert', resolved: 'Résolu', resolve: 'Résoudre', reopen: 'Rouvrir', status: 'Statut', all: 'Tous les tickets', openOnly: 'Ouverts', resolvedOnly: 'Résolus' }
     };
     const tickets = [
-      { title: 'Login button is unresponsive', details: 'Cannot continue from login.' },
-      { title: 'Payment page loads slowly', details: 'Checkout remains on loading state.' },
-      { title: 'Profile save confirmation missing', details: 'Changes persist but feedback is absent.' }
+      { title: 'Login button is unresponsive', details: 'Cannot continue from login.', resolved: false },
+      { title: 'Payment page loads slowly', details: 'Checkout remains on loading state.', resolved: false },
+      { title: 'Profile save confirmation missing', details: 'Changes persist but feedback is absent.', resolved: false }
     ];
     const byId = id => document.getElementById(id);
     function render() {
@@ -64,8 +69,19 @@
       byId('title-label').textContent = text.title;
       byId('details-label').textContent = text.details;
       byId('submit-ticket').textContent = text.submit;
+      byId('locale').setAttribute('aria-label', text.language);
+      byId('status-label').textContent = text.status;
+      const filter = byId('status-filter');
+      filter.options[0].textContent = text.all;
+      filter.options[1].textContent = text.openOnly;
+      filter.options[2].textContent = text.resolvedOnly;
       const query = byId('search').value.trim().toLowerCase();
-      const visible = tickets.filter(ticket => ticket.title.toLowerCase().includes(query));
+      const visible = tickets.filter(ticket => {
+        const matchesSearch = ticket.title.toLowerCase().includes(query);
+        const status = byId('status-filter').value;
+        const matchesStatus = status === 'all' || (status === 'resolved' ? ticket.resolved : !ticket.resolved);
+        return matchesSearch && matchesStatus;
+      });
       byId('ticket-count').textContent = text.count(visible.length);
       byId('tickets').replaceChildren();
       if (!visible.length) {
@@ -80,18 +96,28 @@
         const heading = document.createElement('strong');
         heading.textContent = ticket.title;
         const status = document.createElement('span');
-        status.textContent = text.open;
-        row.append(heading, status);
+        status.textContent = ticket.resolved ? text.resolved : text.open;
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.textContent = ticket.resolved ? text.reopen : text.resolve;
+        toggle.setAttribute('aria-label', `${toggle.textContent}: ${ticket.title}`);
+        toggle.addEventListener('click', () => {
+          ticket.resolved = !ticket.resolved;
+          render();
+        });
+        row.append(heading, status, toggle);
         byId('tickets').append(row);
       });
     }
     byId('locale').addEventListener('change', render);
     byId('search').addEventListener('input', render);
+    byId('status-filter').addEventListener('change', render);
     byId('create-ticket').addEventListener('submit', event => {
       event.preventDefault();
-      tickets.push({ title: byId('ticket-title').value.trim(), details: byId('ticket-details').value.trim() });
+      tickets.push({ title: byId('ticket-title').value.trim(), details: byId('ticket-details').value.trim(), resolved: false });
       byId('create-ticket').reset();
       byId('search').value = '';
+      byId('status-filter').value = 'all';
       render();
     });
     render();
