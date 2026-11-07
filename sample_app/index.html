@@ -16,6 +16,8 @@
     .ticket strong { display: block; }
     .ticket span { font-size: 0.9rem; color: #4d5a71; }
     .ticket button { display: block; margin-top: 8px; padding: 6px 10px; font-size: .9rem; }
+    .regional { background: #f5f7fb; margin-top: 20px; padding: 12px 16px; border-radius: 8px; }
+    .regional p { margin: 8px 0; }
     form { display: grid; gap: 10px; margin-top: 24px; border-top: 1px solid #e7ebf1; padding-top: 20px; }
     button { width: fit-content; background: #174d92; border-color: #174d92; color: white; cursor: pointer; }
   </style>
@@ -37,6 +39,11 @@
       <p id="ticket-count" aria-live="polite"></p>
     </div>
     <section id="tickets" aria-label="Tickets"></section>
+    <section class="regional" aria-labelledby="regional-heading">
+      <h2 id="regional-heading">Regional display</h2>
+      <p><span id="date-label">Date</span>: <output id="example-date"></output></p>
+      <p><span id="amount-label">Amount</span>: <output id="example-amount"></output></p>
+    </section>
     <form id="create-ticket">
       <h2 id="form-heading">New ticket</h2>
       <label id="title-label" for="ticket-title">Title</label>
@@ -48,8 +55,8 @@
   </main>
   <script>
     const messages = {
-      en: { heading: 'Ticket Desk', language: 'Language', search: 'Search tickets', placeholder: 'Search by title', count: n => `${n} tickets`, empty: 'No tickets found', form: 'New ticket', title: 'Title', details: 'Details', submit: 'Create ticket', open: 'Open', resolved: 'Resolved', resolve: 'Resolve', reopen: 'Reopen', status: 'Status', all: 'All tickets', openOnly: 'Open only', resolvedOnly: 'Resolved only' },
-      fr: { heading: 'Centre de tickets', language: 'Langue', search: 'Rechercher des tickets', placeholder: 'Rechercher par titre', count: n => `${n} tickets`, empty: 'Aucun ticket trouvé', form: 'Nouveau ticket', title: 'Titre', details: 'Détails', submit: 'Créer un ticket', open: 'Ouvert', resolved: 'Résolu', resolve: 'Résoudre', reopen: 'Rouvrir', status: 'Statut', all: 'Tous les tickets', openOnly: 'Ouverts', resolvedOnly: 'Résolus' }
+      en: { heading: 'Ticket Desk', language: 'Language', search: 'Search tickets', placeholder: 'Search by title', count: n => `${n} tickets`, empty: 'No tickets found', form: 'New ticket', title: 'Title', details: 'Details', submit: 'Create ticket', open: 'Open', resolved: 'Resolved', resolve: 'Resolve', reopen: 'Reopen', status: 'Status', all: 'All tickets', openOnly: 'Open only', resolvedOnly: 'Resolved only', regional: 'Regional display', date: 'Date', amount: 'Amount' },
+      fr: { heading: 'Centre de tickets', language: 'Langue', search: 'Rechercher des tickets', placeholder: 'Rechercher par titre', count: n => `${n} tickets`, empty: 'Aucun ticket trouvé', form: 'Nouveau ticket', title: 'Titre', details: 'Détails', submit: 'Créer un ticket', open: 'Ouvert', resolved: 'Résolu', resolve: 'Résoudre', reopen: 'Rouvrir', status: 'Statut', all: 'Tous les tickets', openOnly: 'Ouverts', resolvedOnly: 'Résolus', regional: 'Affichage régional', date: 'Date', amount: 'Montant' }
     };
     const tickets = [
       { title: 'Login button is unresponsive', details: 'Cannot continue from login.', resolved: false },
@@ -57,6 +64,7 @@
       { title: 'Profile save confirmation missing', details: 'Changes persist but feedback is absent.', resolved: false }
     ];
     const byId = id => document.getElementById(id);
+    const injectedDefect = new URLSearchParams(window.location.search).get('defect');
     function render() {
       const locale = byId('locale').value;
       const text = messages[locale];
@@ -70,7 +78,21 @@
       byId('details-label').textContent = text.details;
       byId('submit-ticket').textContent = text.submit;
       byId('locale').setAttribute('aria-label', text.language);
-      byId('status-label').textContent = text.status;
+      // The test-only defect switch provides reproducible negative examples.
+      byId('status-label').textContent = locale === 'fr' && injectedDefect === 'status-label'
+        ? messages.en.status : text.status;
+      byId('regional-heading').textContent = text.regional;
+      byId('date-label').textContent = text.date;
+      byId('amount-label').textContent = text.amount;
+      const regionalLocale = locale === 'fr' ? 'fr-FR' : 'en-IE';
+      byId('example-date').textContent = new Intl.DateTimeFormat(regionalLocale, {
+        day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC'
+      }).format(new Date('2026-11-07T12:00:00Z'));
+      const amountLocale = locale === 'fr' && injectedDefect === 'currency'
+        ? 'en-IE' : regionalLocale;
+      byId('example-amount').textContent = new Intl.NumberFormat(amountLocale, {
+        style: 'currency', currency: 'EUR'
+      }).format(1234.5);
       const filter = byId('status-filter');
       filter.options[0].textContent = text.all;
       filter.options[1].textContent = text.openOnly;
