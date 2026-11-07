@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ticket Desk</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #172238; background: #f5f7fb; }
+    body { max-width: 840px; margin: 36px auto; padding: 0 18px; }
+    header, .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    main { background: white; border: 1px solid #dce2eb; border-radius: 12px; padding: 24px; }
+    input, select, button { font: inherit; padding: 9px; border: 1px solid #a6b1c2; border-radius: 6px; }
+    input { width: min(320px, 100%); box-sizing: border-box; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; }
+    .ticket { padding: 14px 0; border-bottom: 1px solid #e7ebf1; }
+    .ticket strong { display: block; }
+    .ticket span { font-size: 0.9rem; color: #4d5a71; }
+    form { display: grid; gap: 10px; margin-top: 24px; border-top: 1px solid #e7ebf1; padding-top: 20px; }
+    button { width: fit-content; background: #174d92; border-color: #174d92; color: white; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 id="heading">Ticket Desk</h1>
+    <div><label for="locale">Language</label>
+      <select id="locale" aria-label="Language"><option value="en">English</option><option value="fr">Français</option></select>
+    </div>
+  </header>
+  <main>
+    <div class="toolbar">
+      <div><label id="search-label" for="search">Search tickets</label><input id="search" type="search" placeholder="Search by title"></div>
+      <p id="ticket-count" aria-live="polite"></p>
+    </div>
+    <section id="tickets" aria-label="Tickets"></section>
+    <form id="create-ticket">
+      <h2 id="form-heading">New ticket</h2>
+      <label id="title-label" for="ticket-title">Title</label>
+      <input id="ticket-title" required maxlength="80">
+      <label id="details-label" for="ticket-details">Details</label>
+      <input id="ticket-details" required maxlength="240">
+      <button id="submit-ticket" type="submit">Create ticket</button>
+    </form>
+  </main>
+  <script>
+    const messages = {
+      en: { heading: 'Ticket Desk', language: 'Language', search: 'Search tickets', placeholder: 'Search by title', count: n => `${n} tickets`, empty: 'No tickets found', form: 'New ticket', title: 'Title', details: 'Details', submit: 'Create ticket', open: 'Open' },
+      fr: { heading: 'Centre de tickets', language: 'Langue', search: 'Rechercher des tickets', placeholder: 'Rechercher par titre', count: n => `${n} tickets`, empty: 'Aucun ticket trouvé', form: 'Nouveau ticket', title: 'Titre', details: 'Détails', submit: 'Créer un ticket', open: 'Ouvert' }
+    };
+    const tickets = [
+      { title: 'Login button is unresponsive', details: 'Cannot continue from login.' },
+      { title: 'Payment page loads slowly', details: 'Checkout remains on loading state.' },
+      { title: 'Profile save confirmation missing', details: 'Changes persist but feedback is absent.' }
+    ];
+    const byId = id => document.getElementById(id);
+    function render() {
+      const locale = byId('locale').value;
+      const text = messages[locale];
+      document.documentElement.lang = locale;
+      byId('heading').textContent = text.heading;
+      document.querySelector('label[for="locale"]').textContent = text.language;
+      byId('search-label').textContent = text.search;
+      byId('search').placeholder = text.placeholder;
+      byId('form-heading').textContent = text.form;
+      byId('title-label').textContent = text.title;
+      byId('details-label').textContent = text.details;
+      byId('submit-ticket').textContent = text.submit;
+      const query = byId('search').value.trim().toLowerCase();
+      const visible = tickets.filter(ticket => ticket.title.toLowerCase().includes(query));
+      byId('ticket-count').textContent = text.count(visible.length);
+      byId('tickets').replaceChildren();
+      if (!visible.length) {
+        const empty = document.createElement('p');
+        empty.textContent = text.empty;
+        byId('tickets').append(empty);
+      }
+      visible.forEach(ticket => {
+        const row = document.createElement('article');
+        row.className = 'ticket';
+        row.dataset.testid = 'ticket-item';
+        const heading = document.createElement('strong');
+        heading.textContent = ticket.title;
+        const status = document.createElement('span');
+        status.textContent = text.open;
+        row.append(heading, status);
+        byId('tickets').append(row);
+      });
+    }
+    byId('locale').addEventListener('change', render);
+    byId('search').addEventListener('input', render);
+    byId('create-ticket').addEventListener('submit', event => {
+      event.preventDefault();
+      tickets.push({ title: byId('ticket-title').value.trim(), details: byId('ticket-details').value.trim() });
+      byId('create-ticket').reset();
+      byId('search').value = '';
+      render();
+    });
+    render();
+  </script>
+</body>
+</html>
