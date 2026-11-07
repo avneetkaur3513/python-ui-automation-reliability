@@ -32,3 +32,22 @@ The repository is not yet a complete automation/reliability portfolio project.
 - Added 11 Playwright tests covering search, form validation, status changes, translations and safe text rendering.
 - Changes committed separately as app functionality and test coverage.
 - GitHub Actions confirmed **15 tests passed** on commit `d21bde6` (run `42369646052`, 2026-11-07).
+
+## 2026-11-07 — Reliability and localization
+
+- Added a test-only asynchronous search delay and three Playwright tests for late updates.
+- Moved the local HTTP server into a shared helper for tests and investigation scripts.
+- Added a timing experiment comparing a fixed wait with a condition-based assertion.
+- Added automatic screenshots and Playwright traces for failures and expected defect detections.
+- Added regional date/currency formatting for Ireland and France, plus two strict expected-failure tests for deliberately seeded localization defects.
+- Investigated long title overflow on a narrow French mobile layout.
+
+### Verified results
+
+- CI run [42371084086](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42371084086): 18 browser tests passed. Controlled timing comparison: fixed wait 6/12; condition-based wait 12/12.
+- CI run [42371256205](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42371256205): 21 passed and 2 strict expected failures for injected localization defects.
+- CI run [42371460770](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42371460770) **failed** the newly introduced narrow-screen regression test. At 360px viewport width, the page's scroll width was 1455px.
+- Applied `overflow-wrap: anywhere` to the ticket heading, preserving its content while allowing it to wrap.
+- CI run [42371558410](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42371558410): **22 passed, 2 xfailed**. Timing comparison again: fixed 6/12; condition-based 12/12.
+
+The two xfails are deliberate negative controls, not unresolved failures in the normal app. Timing metrics are measured only under injected test delays.

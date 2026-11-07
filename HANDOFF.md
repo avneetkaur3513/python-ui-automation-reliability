@@ -1,30 +1,36 @@
-# Next steps
+# Current project status
 
-Current working branch: `ui-tests` (branched from `feature/01-foundation`).
-Do not merge into `main` yet. The earlier branch is still present on GitHub.
+Working branch: `ui-tests`. The default `main` branch has not been merged or changed.
 
-## Built so far
+## Implemented
 
-- Local ticket-desk app with search, ticket creation and required-field validation.
-- English and French UI translations.
-- Resolve/reopen ticket actions and status filtering.
-- Python Playwright/Pytest smoke and workflow tests.
-- GitHub Actions with an HTML report artifact.
+- Local ticket desk and isolated Pytest + Playwright browser tests.
+- Search, create, resolve/reopen, validation and empty-state workflows.
+- English/French UI, Irish/French dates and currency, mobile layout regression test.
+- Controlled async-search experiment comparing fixed and condition-based waits.
+- Reproducible seeded localization defects using strict expected-failure tests.
+- Failure screenshots and browser traces, HTML reports and GitHub Actions artifacts.
 
-## Run locally
+## Verified
+
+CI run `42371558410`: **22 passed, 2 xfailed**. Reliability script: **6/12 fixed wait** vs **12/12 condition-based**.
+
+A mobile width bug was reproduced in failing CI run `42371460770` and fixed in `eda4f31`. See `DEVELOPMENT_LOG.md`.
+
+## Reproduce locally
 
 ```bash
 python -m pip install -r requirements-dev.txt
 python -m playwright install chromium
 python -m pytest -q --html=report.html --self-contained-html
+python -m scripts.reliability_experiment
 ```
 
-## Work that remains
+## Possible next steps
 
-1. Confirm the latest GitHub Actions run is successful; investigate any failures.
-2. Add and diagnose a controlled intermittent UI timing problem; measure repeated runs.
-3. Extend testing for regional formatting or layout differences with real assertions.
-4. Preserve screenshots/traces on failure and document reproducible defect examples.
-5. Review CI output, README and test evidence before deciding the project is complete.
+1. Review latest CI run and download its HTML report and traces for a manual inspection.
+2. Review code and understand both the timing investigation and mobile overflow fix.
+3. Optionally extend with additional browsers or a third locale; neither is necessary to prove the current testing concepts.
+4. Merge into `main` only after the project is accepted as ready.
 
-Do not claim measured improvements until the experiments have actually run.
+Do not call seeded failures production bugs or timing experiments real-world reliability benchmarks.
