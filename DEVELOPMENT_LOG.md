@@ -31,4 +31,4 @@ The repository is not yet a complete automation/reliability portfolio project.
 - Added English and French status/action labels, including accessible button names.
 - Added 11 Playwright tests covering search, form validation, status changes, translations and safe text rendering.
 - Changes committed separately as app functionality and test coverage.
-- CI outcome for the new branch: pending verification at time of this note.
+- GitHub Actions confirmed **15 tests passed** on commit `d21bde6` (run `42369646052`, 2026-11-07).
