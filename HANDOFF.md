@@ -41,4 +41,4 @@ A separate `site-regression` branch includes `tests/test_external_todomvc.py` an
 
 Run them with `python -m pytest -q -m external`. The default local suite runs with `-m "not external"`. The external tests use independent browser contexts and require network access.
 
-First external test run: [42373046982](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42373046982), **8 passed**. Chromium/Firefox matrix validation was subsequently added; check the latest workflow results before merging.
+First external test run: [42373046982](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42373046982), **8 passed**. Chromium/Firefox matrix validated in [run 42373185490](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42373185490): 8/8 passed in each browser; local suite also passed.
