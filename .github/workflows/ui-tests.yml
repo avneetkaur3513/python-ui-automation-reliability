@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - ui-tests
+      - site-regression
       - 'feature/**'
   pull_request:
 
