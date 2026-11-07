@@ -47,9 +47,11 @@ def page(browser, request):
         yield page
     finally:
         result = getattr(request.node, "report_call", None)
-        # Expected failures from controlled defect injection also retain evidence.
-        failed = result is not None and (
-            result.failed or bool(getattr(result, "wasxfail", False))
+        # Negative controls represent deliberately seeded defects.
+        # Retain their traces even when the assertions correctly detect them.
+        failed = (
+            (result is not None and result.failed)
+            or request.node.get_closest_marker("negative_control") is not None
         )
         if failed:
             name = re.sub(r"[^a-zA-Z0-9_-]+", "_", request.node.nodeid)[:130]

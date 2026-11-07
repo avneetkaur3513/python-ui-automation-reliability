@@ -50,13 +50,14 @@
       <input id="ticket-title" required maxlength="80">
       <label id="details-label" for="ticket-details">Details</label>
       <input id="ticket-details" required maxlength="240">
+      <p id="form-error" role="alert" hidden></p>
       <button id="submit-ticket" type="submit">Create ticket</button>
     </form>
   </main>
   <script>
     const messages = {
-      en: { heading: 'Ticket Desk', language: 'Language', search: 'Search tickets', placeholder: 'Search by title', count: n => `${n} tickets`, empty: 'No tickets found', form: 'New ticket', title: 'Title', details: 'Details', submit: 'Create ticket', open: 'Open', resolved: 'Resolved', resolve: 'Resolve', reopen: 'Reopen', status: 'Status', all: 'All tickets', openOnly: 'Open only', resolvedOnly: 'Resolved only', regional: 'Regional display', date: 'Date', amount: 'Amount' },
-      fr: { heading: 'Centre de tickets', language: 'Langue', search: 'Rechercher des tickets', placeholder: 'Rechercher par titre', count: n => `${n} tickets`, empty: 'Aucun ticket trouvé', form: 'Nouveau ticket', title: 'Titre', details: 'Détails', submit: 'Créer un ticket', open: 'Ouvert', resolved: 'Résolu', resolve: 'Résoudre', reopen: 'Rouvrir', status: 'Statut', all: 'Tous les tickets', openOnly: 'Ouverts', resolvedOnly: 'Résolus', regional: 'Affichage régional', date: 'Date', amount: 'Montant' }
+      en: { heading: 'Ticket Desk', language: 'Language', search: 'Search tickets', placeholder: 'Search by title', count: n => `${n} tickets`, empty: 'No tickets found', form: 'New ticket', title: 'Title', details: 'Details', submit: 'Create ticket', open: 'Open', resolved: 'Resolved', resolve: 'Resolve', reopen: 'Reopen', status: 'Status', all: 'All tickets', openOnly: 'Open only', resolvedOnly: 'Resolved only', regional: 'Regional display', date: 'Date', amount: 'Amount', invalid: 'Title and details cannot be blank.' },
+      fr: { heading: 'Centre de tickets', language: 'Langue', search: 'Rechercher des tickets', placeholder: 'Rechercher par titre', count: n => `${n} tickets`, empty: 'Aucun ticket trouvé', form: 'Nouveau ticket', title: 'Titre', details: 'Détails', submit: 'Créer un ticket', open: 'Ouvert', resolved: 'Résolu', resolve: 'Résoudre', reopen: 'Rouvrir', status: 'Statut', all: 'Tous les tickets', openOnly: 'Ouverts', resolvedOnly: 'Résolus', regional: 'Affichage régional', date: 'Date', amount: 'Montant', invalid: 'Le titre et les détails ne peuvent pas être vides.' }
     };
     const tickets = [
       { title: 'Login button is unresponsive', details: 'Cannot continue from login.', resolved: false },
@@ -77,6 +78,7 @@
       byId('title-label').textContent = text.title;
       byId('details-label').textContent = text.details;
       byId('submit-ticket').textContent = text.submit;
+      if (!byId('form-error').hidden) byId('form-error').textContent = text.invalid;
       byId('locale').setAttribute('aria-label', text.language);
       // The test-only defect switch provides reproducible negative examples.
       byId('status-label').textContent = locale === 'fr' && injectedDefect === 'status-label'
@@ -145,9 +147,23 @@
       else pendingSearch = setTimeout(render, searchDelay);
     });
     byId('status-filter').addEventListener('change', render);
+    // A required field may still contain only spaces. Validate the trimmed values.
+    for (const id of ['ticket-title', 'ticket-details']) {
+      byId(id).addEventListener('input', () => {
+        byId('form-error').hidden = true;
+      });
+    }
     byId('create-ticket').addEventListener('submit', event => {
       event.preventDefault();
-      tickets.push({ title: byId('ticket-title').value.trim(), details: byId('ticket-details').value.trim(), resolved: false });
+      const title = byId('ticket-title').value.trim();
+      const details = byId('ticket-details').value.trim();
+      if (!title || !details) {
+        byId('form-error').hidden = false;
+        byId('form-error').textContent = messages[byId('locale').value].invalid;
+        return;
+      }
+      byId('form-error').hidden = true;
+      tickets.push({ title, details, resolved: false });
       byId('create-ticket').reset();
       byId('search').value = '';
       byId('status-filter').value = 'all';

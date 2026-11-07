@@ -6,6 +6,7 @@ on:
       - main
       - ui-tests
       - site-regression
+      - test-review
       - 'feature/**'
   pull_request:
 

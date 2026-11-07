@@ -30,17 +30,28 @@ def test_switching_languages_restores_irish_formatting(page, app_url):
     expect(page.locator("#example-amount")).to_have_text("€1,234.50")
 
 
-@pytest.mark.xfail(strict=True, reason="Deliberately injected incorrect French currency")
+@pytest.mark.negative_control
 def test_seeded_wrong_currency_is_detected(page, app_url):
+    # Assert the actual defective output, not merely that any assertion fails.
     page.goto(f"{app_url}?defect=currency")
+    page.get_by_label("Language").select_option("fr")
+    expect(page.locator("#example-amount")).to_have_text("€1,234.50")
+
+    # With the injection off, the same French workflow must display the
+    # correct locale-specific format.
+    page.goto(app_url)
     page.get_by_label("Language").select_option("fr")
     expect(page.locator("#example-amount")).to_have_text(
         re.compile(r"1\s234,50\s€")
     )
 
 
-@pytest.mark.xfail(strict=True, reason="Deliberately injected untranslated French label")
+@pytest.mark.negative_control
 def test_seeded_untranslated_status_is_detected(page, app_url):
     page.goto(f"{app_url}?defect=status-label")
+    page.get_by_label("Language").select_option("fr")
+    expect(page.locator("#status-label")).to_have_text("Status")
+
+    page.goto(app_url)
     page.get_by_label("Language").select_option("fr")
     expect(page.locator("#status-label")).to_have_text("Statut")

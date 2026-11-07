@@ -13,7 +13,7 @@ The focus is on Python, Playwright, Pytest, debugging and test evidence. There i
 - English/French labels and Irish/French date and currency formatting
 - Asynchronous search updates and rapid input changes
 - Narrow mobile layouts, including long unbroken text
-- Two deliberately seeded localization defects (marked as expected failures)
+- Two deliberately seeded localization defects, verified by explicit negative-control assertions
 
 Each test starts with a new browser context; the data in the app resets on page load.
 
@@ -55,9 +55,9 @@ An 80-character title caused a horizontal overflow on a 360px viewport. The [fai
 
 Adding `overflow-wrap: anywhere` to the title fixed the issue. The next [CI run](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42371558410) passed the same regression test.
 
-## Seeded failures
+## Seeded defects and negative controls
 
-`?defect=currency` deliberately renders the wrong currency format in French; `?defect=status-label` deliberately leaves an English label in place. The associated Pytest cases use **strict expected failures**, so the suite checks that these defects are detected instead of silently passing them.
+`?defect=currency` deliberately renders the wrong currency format in French; `?defect=status-label` deliberately leaves an English label in place. The tests explicitly check the **specific wrong output** under each fault switch and the correct result without the switch. They pass only when both observations are correct. Unlike a broad `xfail` marker, an unrelated failure cannot be treated as successful defect detection.
 
 These are examples introduced for testing, not bugs discovered in an external product.
 
@@ -79,7 +79,7 @@ For a failing test, the fixture writes screenshots and Playwright traces under `
 
 ## Limits
 
-The project tests a browser app with Chromium, not native iOS/macOS software. The timing delays and two localization defects are controlled examples. The evidence should be interpreted as results from those specific scenarios, not general performance guarantees.
+The local application is tested in Chromium, while external TodoMVC scenarios are tested in Chromium and Firefox. This is browser automation, not native iOS/macOS testing. The timing delays and two localization defects are controlled examples. The evidence should be interpreted as results from those specific scenarios, not general performance guarantees.
 
 ## Testing an independent application
 
@@ -110,3 +110,11 @@ On Windows PowerShell, set `$env:PLAYWRIGHT_BROWSER="firefox"` before running th
 The CI pipeline keeps the local and external tests in separate jobs and executes the external tests in Chromium and Firefox. An external service outage or layout change can cause these external tests to fail even when our own local app is healthy. This is intentional visibility, not a reason to silently skip failed checks.
 
 The external application is a **public demonstration**, not a production e-commerce system. We use it to check whether the test framework works against an independently maintained UI; we do not claim to have found defects in a real customer's app.
+
+## Input validation investigation
+
+A separate regression test revealed that the ticket form accepted fields containing only whitespace and created a blank ticket. [The failing CI run](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42373751983) confirmed the problem across three inputs. The form now validates trimmed values, shows an accessible error message in English or French, and clears it when the user edits a field.
+
+[Passing CI after the changes](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42374057583): **29 local tests passed**, plus **8 external tests in Chromium** and **8 in Firefox**. These are 45 test executions, not 45 different scenarios.
+
+The latest negative-control tests assert specific defective values and check that the same scenarios work without fault injection. They no longer rely on broad expected failures.

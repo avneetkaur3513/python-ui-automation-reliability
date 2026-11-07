@@ -1,4 +1,7 @@
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
-markers = ["external: checks against a separate publicly hosted application"]
+markers = [
+    "external: checks against a separate publicly hosted application",
+    "negative_control: deliberate app defect with a verified expected outcome",
+]
