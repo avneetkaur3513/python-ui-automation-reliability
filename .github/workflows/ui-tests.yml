@@ -25,10 +25,14 @@ jobs:
         run: python -m playwright install --with-deps chromium
       - name: Run UI tests
         run: python -m pytest -q --html=report.html --self-contained-html
-      - name: Upload test report
+      - name: Compare fixed and condition-based waits
+        run: python -m scripts.reliability_experiment --iterations 12 --output artifacts/reliability.json
+      - name: Upload reports and failure traces
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ui-smoke-report
-          path: report.html
-          if-no-files-found: ignore
+          name: ui-test-evidence
+          path: |
+            report.html
+            artifacts/
+          if-no-files-found: warn
