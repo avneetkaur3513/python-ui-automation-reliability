@@ -123,11 +123,21 @@
         status.textContent = ticket.resolved ? text.resolved : text.open;
         const toggle = document.createElement('button');
         toggle.type = 'button';
+        // This identifies the same ticket after the list gets re-rendered.
+        const ticketIndex = tickets.indexOf(ticket);
+        toggle.dataset.ticketIndex = String(ticketIndex);
         toggle.textContent = ticket.resolved ? text.reopen : text.resolve;
         toggle.setAttribute('aria-label', `${toggle.textContent}: ${ticket.title}`);
         toggle.addEventListener('click', () => {
           ticket.resolved = !ticket.resolved;
           render();
+          // Replacing the list removes the activated button from the DOM.
+          // Restore keyboard focus to its replacement, or to the filter if
+          // the ticket is no longer visible.
+          const replacement = byId('tickets').querySelector(
+            `button[data-ticket-index="${ticketIndex}"]`
+          );
+          (replacement || byId('status-filter')).focus();
         });
         row.append(heading, status, toggle);
         byId('tickets').append(row);

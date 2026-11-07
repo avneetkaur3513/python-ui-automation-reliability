@@ -72,3 +72,12 @@ The demo is a publicly available test application; these tests do not constitute
 - [CI run 42374057583](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42374057583): **29 local tests passed**, external Chromium **8 passed**, Firefox **8 passed**. The controlled timing experiment remained fixed wait **6/12** versus state-based wait **12/12**.
 
 Older xfail and failed-run results above are historical evidence of how the tests evolved, not the current suite status.
+
+## 2026-11-07 — Keyboard navigation check
+
+- Added keyboard-only regression tests for activating Resolve and Reopen actions.
+- [Failing CI run 42374596784](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42374596784): two tests failed because a re-render removed the active button and browser focus was lost; 29 earlier local tests still passed.
+- Restored focus to the updated ticket's button, or to the status filter when the ticket is hidden.
+- Added a third regression case for the hidden-ticket state.
+- [Passing CI run 42374826958](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42374826958): **32 local tests passed**; external TodoMVC tests also passed **8/8 Chromium** and **8/8 Firefox**.
+- Added `docs/DEBUGGING_WALKTHROUGH.md` to keep the failure-first investigations and reproducible commands in one place.
