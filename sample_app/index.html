@@ -110,7 +110,18 @@
       });
     }
     byId('locale').addEventListener('change', render);
-    byId('search').addEventListener('input', render);
+    // Search can be deliberately slowed down for the timing investigation.
+    // The normal application still responds immediately.
+    const delayInput = new URLSearchParams(window.location.search).get('searchDelay');
+    const requestedDelay = Number(delayInput);
+    const searchDelay = Number.isFinite(requestedDelay)
+      ? Math.max(0, Math.min(500, requestedDelay)) : 0;
+    let pendingSearch;
+    byId('search').addEventListener('input', () => {
+      clearTimeout(pendingSearch);
+      if (searchDelay === 0) render();
+      else pendingSearch = setTimeout(render, searchDelay);
+    });
     byId('status-filter').addEventListener('change', render);
     byId('create-ticket').addEventListener('submit', event => {
       event.preventDefault();
