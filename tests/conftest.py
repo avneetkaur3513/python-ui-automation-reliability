@@ -21,7 +21,10 @@ def browser():
         executable = os.environ.get("PLAYWRIGHT_CHROMIUM_EXECUTABLE")
         if executable:
             options["executable_path"] = executable
-        browser = playwright.chromium.launch(**options)
+        name = os.environ.get("PLAYWRIGHT_BROWSER", "chromium")
+        if name not in {"chromium", "firefox"}:
+            raise ValueError(f"Unsupported test browser: {name}")
+        browser = getattr(playwright, name).launch(**options)
         try:
             yield browser
         finally:
