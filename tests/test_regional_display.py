@@ -42,7 +42,7 @@ def test_seeded_wrong_currency_is_detected(page, app_url):
     page.goto(app_url)
     page.get_by_label("Language").select_option("fr")
     expect(page.locator("#example-amount")).to_have_text(
-        re.compile(r"1\\s234,50\\s€")
+        re.compile(r"1\s234,50\s€")
     )
 
 
