@@ -7,6 +7,7 @@ on:
       - ui-tests
       - site-regression
       - test-review
+      - keyboard-nav
       - 'feature/**'
   pull_request:
 
