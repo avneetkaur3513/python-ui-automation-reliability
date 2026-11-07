@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ticket Desk</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #172238; background: #f5f7fb; }
+    body { max-width: 840px; margin: 36px auto; padding: 0 18px; }
+    header, .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    main { background: white; border: 1px solid #dce2eb; border-radius: 12px; padding: 24px; }
+    input, select, button { font: inherit; padding: 9px; border: 1px solid #a6b1c2; border-radius: 6px; }
+    input { width: min(320px, 100%); box-sizing: border-box; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; }
+    .ticket { padding: 14px 0; border-bottom: 1px solid #e7ebf1; }
+    .ticket strong { display: block; overflow-wrap: anywhere; }
+    .ticket span { font-size: 0.9rem; color: #4d5a71; }
+    .ticket button { display: block; margin-top: 8px; padding: 6px 10px; font-size: .9rem; }
+    .regional { background: #f5f7fb; margin-top: 20px; padding: 12px 16px; border-radius: 8px; }
+    .regional p { margin: 8px 0; }
+    form { display: grid; gap: 10px; margin-top: 24px; border-top: 1px solid #e7ebf1; padding-top: 20px; }
+    button { width: fit-content; background: #174d92; border-color: #174d92; color: white; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 id="heading">Ticket Desk</h1>
+    <div><label for="locale">Language</label>
+      <select id="locale" aria-label="Language"><option value="en">English</option><option value="fr">Français</option></select>
+    </div>
+  </header>
+  <main>
+    <div class="toolbar">
+      <div><label id="search-label" for="search">Search tickets</label><input id="search" type="search" placeholder="Search by title"></div>
+      <div>
+        <label id="status-label" for="status-filter">Status</label>
+        <select id="status-filter"><option value="all">All tickets</option><option value="open">Open only</option><option value="resolved">Resolved only</option></select>
+      </div>
+      <p id="ticket-count" aria-live="polite"></p>
+    </div>
+    <section id="tickets" aria-label="Tickets"></section>
+    <section class="regional" aria-labelledby="regional-heading">
+      <h2 id="regional-heading">Regional display</h2>
+      <p><span id="date-label">Date</span>: <output id="example-date"></output></p>
+      <p><span id="amount-label">Amount</span>: <output id="example-amount"></output></p>
+    </section>
+    <form id="create-ticket">
+      <h2 id="form-heading">New ticket</h2>
+      <label id="title-label" for="ticket-title">Title</label>
+      <input id="ticket-title" required maxlength="80">
+      <label id="details-label" for="ticket-details">Details</label>
+      <input id="ticket-details" required maxlength="240">
+      <button id="submit-ticket" type="submit">Create ticket</button>
+    </form>
+  </main>
+  <script>
+    const messages = {
+      en: { heading: 'Ticket Desk', language: 'Language', search: 'Search tickets', placeholder: 'Search by title', count: n => `${n} tickets`, empty: 'No tickets found', form: 'New ticket', title: 'Title', details: 'Details', submit: 'Create ticket', open: 'Open', resolved: 'Resolved', resolve: 'Resolve', reopen: 'Reopen', status: 'Status', all: 'All tickets', openOnly: 'Open only', resolvedOnly: 'Resolved only', regional: 'Regional display', date: 'Date', amount: 'Amount' },
+      fr: { heading: 'Centre de tickets', language: 'Langue', search: 'Rechercher des tickets', placeholder: 'Rechercher par titre', count: n => `${n} tickets`, empty: 'Aucun ticket trouvé', form: 'Nouveau ticket', title: 'Titre', details: 'Détails', submit: 'Créer un ticket', open: 'Ouvert', resolved: 'Résolu', resolve: 'Résoudre', reopen: 'Rouvrir', status: 'Statut', all: 'Tous les tickets', openOnly: 'Ouverts', resolvedOnly: 'Résolus', regional: 'Affichage régional', date: 'Date', amount: 'Montant' }
+    };
+    const tickets = [
+      { title: 'Login button is unresponsive', details: 'Cannot continue from login.', resolved: false },
+      { title: 'Payment page loads slowly', details: 'Checkout remains on loading state.', resolved: false },
+      { title: 'Profile save confirmation missing', details: 'Changes persist but feedback is absent.', resolved: false }
+    ];
+    const byId = id => document.getElementById(id);
+    const injectedDefect = new URLSearchParams(window.location.search).get('defect');
+    function render() {
+      const locale = byId('locale').value;
+      const text = messages[locale];
+      document.documentElement.lang = locale;
+      byId('heading').textContent = text.heading;
+      document.querySelector('label[for="locale"]').textContent = text.language;
+      byId('search-label').textContent = text.search;
+      byId('search').placeholder = text.placeholder;
+      byId('form-heading').textContent = text.form;
+      byId('title-label').textContent = text.title;
+      byId('details-label').textContent = text.details;
+      byId('submit-ticket').textContent = text.submit;
+      byId('locale').setAttribute('aria-label', text.language);
+      // The test-only defect switch provides reproducible negative examples.
+      byId('status-label').textContent = locale === 'fr' && injectedDefect === 'status-label'
+        ? messages.en.status : text.status;
+      byId('regional-heading').textContent = text.regional;
+      byId('date-label').textContent = text.date;
+      byId('amount-label').textContent = text.amount;
+      const regionalLocale = locale === 'fr' ? 'fr-FR' : 'en-IE';
+      byId('example-date').textContent = new Intl.DateTimeFormat(regionalLocale, {
+        day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC'
+      }).format(new Date('2026-11-07T12:00:00Z'));
+      const amountLocale = locale === 'fr' && injectedDefect === 'currency'
+        ? 'en-IE' : regionalLocale;
+      byId('example-amount').textContent = new Intl.NumberFormat(amountLocale, {
+        style: 'currency', currency: 'EUR'
+      }).format(1234.5);
+      const filter = byId('status-filter');
+      filter.options[0].textContent = text.all;
+      filter.options[1].textContent = text.openOnly;
+      filter.options[2].textContent = text.resolvedOnly;
+      const query = byId('search').value.trim().toLowerCase();
+      const visible = tickets.filter(ticket => {
+        const matchesSearch = ticket.title.toLowerCase().includes(query);
+        const status = byId('status-filter').value;
+        const matchesStatus = status === 'all' || (status === 'resolved' ? ticket.resolved : !ticket.resolved);
+        return matchesSearch && matchesStatus;
+      });
+      byId('ticket-count').textContent = text.count(visible.length);
+      byId('tickets').replaceChildren();
+      if (!visible.length) {
+        const empty = document.createElement('p');
+        empty.textContent = text.empty;
+        byId('tickets').append(empty);
+      }
+      visible.forEach(ticket => {
+        const row = document.createElement('article');
+        row.className = 'ticket';
+        row.dataset.testid = 'ticket-item';
+        const heading = document.createElement('strong');
+        heading.textContent = ticket.title;
+        const status = document.createElement('span');
+        status.textContent = ticket.resolved ? text.resolved : text.open;
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.textContent = ticket.resolved ? text.reopen : text.resolve;
+        toggle.setAttribute('aria-label', `${toggle.textContent}: ${ticket.title}`);
+        toggle.addEventListener('click', () => {
+          ticket.resolved = !ticket.resolved;
+          render();
+        });
+        row.append(heading, status, toggle);
+        byId('tickets').append(row);
+      });
+    }
+    byId('locale').addEventListener('change', render);
+    // Search can be deliberately slowed down for the timing investigation.
+    // The normal application still responds immediately.
+    const delayInput = new URLSearchParams(window.location.search).get('searchDelay');
+    const requestedDelay = Number(delayInput);
+    const searchDelay = Number.isFinite(requestedDelay)
+      ? Math.max(0, Math.min(500, requestedDelay)) : 0;
+    let pendingSearch;
+    byId('search').addEventListener('input', () => {
+      clearTimeout(pendingSearch);
+      if (searchDelay === 0) render();
+      else pendingSearch = setTimeout(render, searchDelay);
+    });
+    byId('status-filter').addEventListener('change', render);
+    byId('create-ticket').addEventListener('submit', event => {
+      event.preventDefault();
+      tickets.push({ title: byId('ticket-title').value.trim(), details: byId('ticket-details').value.trim(), resolved: false });
+      byId('create-ticket').reset();
+      byId('search').value = '';
+      byId('status-filter').value = 'all';
+      render();
+    });
+    render();
+  </script>
+</body>
+</html>
