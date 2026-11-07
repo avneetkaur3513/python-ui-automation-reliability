@@ -15,7 +15,7 @@ python -m playwright install chromium
 python -m pytest -q
 ```
 
-The baseline suite starts a local HTTP server, launches Chromium headlessly and checks ticket loading, language switching, search and ticket creation. No deployed site is needed.
+The test suite starts a local HTTP server, launches Chromium headlessly and checks searching, ticket creation, status changes, required fields and English/French translations. No deployed site is needed.
 
 ## Project structure
 
@@ -29,4 +29,4 @@ The baseline suite starts a local HTTP server, launches Chromium headlessly and 
 
 ## Planned work
 
-Expand meaningful user journeys, investigate intermittent failures, validate localization and regional formatting, and capture useful failure evidence. Only report measured results.
+Investigate intermittent failures, test region-sensitive formatting and capture useful failure evidence. The ticket desk is a controlled test fixture rather than a production app. Only report measured results.

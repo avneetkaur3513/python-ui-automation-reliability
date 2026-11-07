@@ -1,25 +1,30 @@
-# Development handoff
+# Next steps
 
-## Repository checkpoint
+Current working branch: `ui-tests` (branched from `feature/01-foundation`).
+Do not merge into `main` yet. The earlier branch is still present on GitHub.
 
-- Repository: `avneetkaur3513/python-ui-automation-reliability`
-- Working branch: `feature/01-foundation`
-- Foundation includes a local ticket desk, tests, documentation and a GitHub Actions workflow.
-- Do not merge into `main` without explicit permission.
+## Built so far
 
-## Before continuing
+- Local ticket-desk app with search, ticket creation and required-field validation.
+- English and French UI translations.
+- Resolve/reopen ticket actions and status filtering.
+- Python Playwright/Pytest smoke and workflow tests.
+- GitHub Actions with an HTML report artifact.
 
-1. Check the GitHub Actions run for `feature/01-foundation`. Address real test failures if any; do not assume a green run.
-2. Check out the branch and run:
-   ```bash
-   python -m pip install -r requirements-dev.txt
-   python -m playwright install chromium
-   python -m pytest -q
-   ```
-3. Read `docs/ARCHITECTURE.md`, `docs/TEST_PLAN.md`, and `DEVELOPMENT_LOG.md`.
+## Run locally
 
-## Next stage
+```bash
+python -m pip install -r requirements-dev.txt
+python -m playwright install chromium
+python -m pytest -q --html=report.html --self-contained-html
+```
 
-Create `feature/02-ui-automation` based on the completed foundation branch. Expand isolated UI journeys and negative/validation scenarios. After tested progress is committed, continue with controlled flaky-test investigation, localization/region edge cases, diagnostic artifacts, and CI improvements.
+## Work that remains
 
-Keep commits meaningful, do not manipulate timestamps, and log actual debug work. If running as a scheduled agent, inspect repository state at each run before changes. No schedule is currently created by this repository setup.
+1. Confirm the latest GitHub Actions run is successful; investigate any failures.
+2. Add and diagnose a controlled intermittent UI timing problem; measure repeated runs.
+3. Extend testing for regional formatting or layout differences with real assertions.
+4. Preserve screenshots/traces on failure and document reproducible defect examples.
+5. Review CI output, README and test evidence before deciding the project is complete.
+
+Do not claim measured improvements until the experiments have actually run.

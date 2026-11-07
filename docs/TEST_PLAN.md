@@ -18,3 +18,15 @@ The first milestone validates that the local app and browser-test harness work. 
 - Use deterministic data for baseline runs.
 - Deliberately injected bugs must be clearly documented and reverted or isolated.
 - Record actual commands, failures and measurements in the development log.
+
+## Additional tested workflows
+
+The `ui-tests` branch adds expected behaviours for:
+- Case-insensitive search, clearing search and empty states
+- Browser-enforced form validation
+- New ticket visibility when a filter was active
+- Resolve/reopen actions and status filtering
+- French status/action translations
+- User-entered text displayed literally, not interpreted as HTML
+
+These are deterministic regression tests. Flaky-test diagnosis and regional format validation are separate future investigations.

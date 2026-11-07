@@ -23,3 +23,12 @@
 - `9cc21f3` — GitHub Actions workflow
 
 The repository is not yet a complete automation/reliability portfolio project.
+
+## 2026-11-07 — UI workflows
+
+- Created the shorter working branch `ui-tests` with existing commits preserved.
+- Added ability to resolve and reopen tickets with filtered open/resolved views.
+- Added English and French status/action labels, including accessible button names.
+- Added 11 Playwright tests covering search, form validation, status changes, translations and safe text rendering.
+- Changes committed separately as app functionality and test coverage.
+- CI outcome for the new branch: pending verification at time of this note.
