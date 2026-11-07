@@ -61,3 +61,14 @@ The two xfails are deliberate negative controls, not unresolved failures in the 
 - Added Chromium/Firefox CI matrix. In [run 42373185490](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42373185490), Chromium **8/8 passed**, Firefox **8/8 passed**, and local suite **22 passed, 2 xfailed**.
 
 The demo is a publicly available test application; these tests do not constitute production system validation.
+
+## 2026-11-07 — Validation and test audit
+
+- Inspected the current local-app test suite and fault-injection assertions.
+- Added three parametrized regression checks for whitespace-only form inputs. [CI run 42373751983](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42373751983) reproduced three failures: each invalid submission created a fourth ticket.
+- Fixed the submit handler to validate trimmed title/details and display an English or French alert; added test coverage for correcting a rejected input and the French error message.
+- Replaced broad `xfail` annotations with explicit negative-control checks, so unrelated errors cannot be mistaken for detection of a seeded localization bug. Each test verifies the known bad value **and** the correct value with injection disabled.
+- Kept screenshot/trace capture for those marked negative controls.
+- [CI run 42374057583](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42374057583): **29 local tests passed**, external Chromium **8 passed**, Firefox **8 passed**. The controlled timing experiment remained fixed wait **6/12** versus state-based wait **12/12**.
+
+Older xfail and failed-run results above are historical evidence of how the tests evolved, not the current suite status.

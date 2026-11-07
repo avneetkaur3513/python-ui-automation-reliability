@@ -1,44 +1,36 @@
-# Current project status
+# Project handoff
 
-Working branch: `ui-tests`. The default `main` branch has not been merged or changed.
+Current integration branch: `main`. The `test-review` branch contains the latest form-validation and negative-control audit work until its pull request is merged.
 
-## Implemented
+## What works
 
-- Local ticket desk and isolated Pytest + Playwright browser tests.
-- Search, create, resolve/reopen, validation and empty-state workflows.
-- English/French UI, Irish/French dates and currency, mobile layout regression test.
-- Controlled async-search experiment comparing fixed and condition-based waits.
-- Reproducible seeded localization defects using strict expected-failure tests.
-- Failure screenshots and browser traces, HTML reports and GitHub Actions artifacts.
+- Python/Playwright/Pytest UI automation against a controlled local ticket app.
+- Cross-language labels, date/currency formatting, navigation, forms and ticket status workflows.
+- A measured fixed-wait vs state-based wait experiment.
+- Detection and fix of a mobile text overflow defect.
+- Deliberately injected localization defects with exact-value checks rather than unconditional expected failures.
+- Input validation rejects whitespace-only values; error recovery and French error messages are tested.
+- Additional external TodoMVC regression tests in Chromium and Firefox.
+- GitHub Actions HTML reports, failure screenshots and traces.
 
-## Verified
+## CI and evidence
 
-CI run `42371558410`: **22 passed, 2 xfailed**. Reliability script: **6/12 fixed wait** vs **12/12 condition-based**.
+- Failing form-validation run: https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42373751983
+- Passing review run: https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42374057583
+- Latest review result: 29 local tests passed, 8 external Chromium passed, 8 external Firefox passed.
+- The 12-run timing experiment is deliberately controlled, not a production benchmark.
 
-A mobile width bug was reproduced in failing CI run `42371460770` and fixed in `eda4f31`. See `DEVELOPMENT_LOG.md`.
-
-## Reproduce locally
+## Local commands
 
 ```bash
 python -m pip install -r requirements-dev.txt
 python -m playwright install chromium
-python -m pytest -q --html=report.html --self-contained-html
+python -m pytest -q -m "not external" --html=report.html --self-contained-html
 python -m scripts.reliability_experiment
 ```
 
-## Possible next steps
+External tests require network access: `python -m pytest -q -m external`. Install Firefox and set `PLAYWRIGHT_BROWSER=firefox` to test that engine.
 
-1. Review latest CI run and download its HTML report and traces for a manual inspection.
-2. Review code and understand both the timing investigation and mobile overflow fix.
-3. Optionally extend with additional browsers or a third locale; neither is necessary to prove the current testing concepts.
-4. Merge into `main` only after the project is accepted as ready.
+## Next human review
 
-Do not call seeded failures production bugs or timing experiments real-world reliability benchmarks.
-
-## Independent external application tests
-
-A separate `site-regression` branch includes `tests/test_external_todomvc.py` and a new GitHub Actions job for those tests.
-
-Run them with `python -m pytest -q -m external`. The default local suite runs with `-m "not external"`. The external tests use independent browser contexts and require network access.
-
-First external test run: [42373046982](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42373046982), **8 passed**. Chromium/Firefox matrix validated in [run 42373185490](https://github.com/avneetkaur3513/python-ui-automation-reliability/actions/runs/42373185490): 8/8 passed in each browser; local suite also passed.
+Check the latest GitHub Actions run, inspect `README.md`, and be able to explain the failure-first investigation for whitespace validation, mobile overflow, and the fixed-wait experiment. These are controlled engineering exercises, not claims about production software or native Apple-platform testing.

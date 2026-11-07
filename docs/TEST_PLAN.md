@@ -46,3 +46,12 @@ Scenarios:
 - Delete a selected item while leaving unrelated items intact
 
 The external suite runs in separate CI jobs; both Chromium and Firefox are intended. A third-party outage is reported as a test failure rather than masked. This suite does not verify native iOS or macOS behaviour.
+
+## Form-validation and seeded-defect review
+
+- Submit whitespace-only title, whitespace-only details, and both simultaneously; none should create a ticket.
+- Correct an invalid title and verify submission succeeds, proving the error state can recover.
+- Switch to French and check the invalid-submission message is translated.
+- A negative-control test must assert the exact known wrong value under injection and the exact correct behaviour without injection. General `xfail` handling is too permissive because it can hide unrelated exceptions.
+
+The initial whitespace tests failed as intended (CI 42373751983); after the fix and explicit negative controls, all 29 local tests passed (CI 42374057583).
