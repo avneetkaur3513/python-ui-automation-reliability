@@ -36,3 +36,18 @@ def test_keyboard_user_can_toggle_the_same_ticket_twice(page, app_url):
     expect(
         page.get_by_role("button", name="Resolve: Payment page loads slowly")
     ).to_be_focused()
+
+
+def test_focus_moves_to_filter_when_ticket_leaves_current_view(page, app_url):
+    page.goto(app_url)
+    page.get_by_label("Status").select_option("open")
+    resolve_button = page.get_by_role(
+        "button", name="Resolve: Login button is unresponsive"
+    )
+    resolve_button.focus()
+    page.keyboard.press("Enter")
+
+    expect(page.get_by_test_id("ticket-item")).to_have_count(2)
+    # The resolved ticket is hidden by the active filter. The filter is
+    # the next useful place for keyboard focus.
+    expect(page.get_by_label("Status")).to_be_focused()
